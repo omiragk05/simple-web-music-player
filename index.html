@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Music Player</title>
+    <!-- FontAwesome Icons for play, pause, volume icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js" crossorigin="anonymous"></script> 
+    <style>
+        /* Basic styles for body */
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: url('bgimg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* Style for the title (heading) */
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Player container styles */
+        .player {
+            width: 90%;
+            max-width: 350px;
+            height: 400px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px); /* Applies a blur effect to the background */
+        }
+
+        /* Style for the thumbnail image of the current song */
+        .thumbnail {
+            width: 144px;
+            height: 144px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Ensures the thumbnail image covers its container perfectly */
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Styles for control buttons (play, pause, skip) */
+        .controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+        }
+
+        button {
+            background-color: #ff6f61; /* Button color */
+            border: none;
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s; /* Smooth background color change on hover */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Hover effect for control buttons */
+        button:hover {
+            background-color: #ff3e30;
+        }
+
+        /* Volume control container */
+        .volume-control {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Volume slider styles */
+        .volume-control input {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 150px;
+            height: 8px;
+            background: #ff6f61; /* Slider color */
+            border-radius: 5px;
+            outline: none;
+            transition: background 0.3s;
+        }
+
+        /* Custom styles for volume slider thumb */
+        .volume-control input::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .volume-control input::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Footer styling */
+        footer {
+            margin-top: 20px;
+            font-size: 0.8rem;
+        }
+
+        /* Mobile responsive design */
+        @media (max-width: 600px) {
+            .player {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🎶Simple Music Player🎶</h1>
+    <div class="player">
+        <!-- Thumbnail image for the current track -->
+        <div class="thumbnail">
+            <img id="thumbnail" src="https://streamurl.link/images/broadcasts/9bc7046.webp" alt="Thumbnail">
+        </div>
+        <h3 id="trackTitle">Fun Kids</h3>
+        <div class="controls">
+            <!-- Button for previous track -->
+            <button onclick="previousTrack()"><i class="fas fa-step-backward"></i></button>
+            <!-- Button for play/pause -->
+            <button id="playPauseBtn" onclick="togglePlayPause()"><i class="fas fa-play"></i></button>
+            <!-- Button for next track -->
+            <button onclick="nextTrack()"><i class="fas fa-step-forward"></i></button>
+        </div>
+        <div class="volume-control">
+            <!-- Volume icon that toggles mute -->
+            <i id="volumeIcon" class="fas fa-volume-up" style="color: white;" onclick="toggleMute()"></i>
+            <!-- Volume slider -->
+            <input id="volume" type="range" min="0" max="1" step="0.01" onchange="setVolume(this.value)">
+        </div>
+    </div>
+    <footer>
+        Created with ❤️ | Enjoy the vibes!
+    </footer>
+
+    <script>
+        // Array to store track information: title, source URL, and thumbnail image
+        const tracks = [
+            {
+                title: "Fun Kids",
+                src: "https://listen-funkids.sharp-stream.com/funkids.mp3",
+                thumbnail: "https://streamurl.link/images/broadcasts/9bc7046.webp"
+            },
+            {
+                title: "Hip Hop and Soul",
+                src: "http://stream.rtlradio.de/rnb/mp3-192/",
+                thumbnail: "https://streamurl.link/images/broadcasts/6765ae0.webp"
+            },
+            {
+                title: "Neue Hits",
+                src: "http://stream.rtlradio.de/neuehits/mp3-192/",
+                thumbnail: "https://streamurl.link/images/broadcasts/63417bb.webp"
+            },
+            {
+                title: "90s90s In The Mix",
+                src: "https://streams.90s90s.de/inthemix/mp3-192/",
+                thumbnail: "https://streamurl.link/images/broadcasts/e623724.webp"
+            },
+        ];
+
+        let currentTrackIndex = 0; // Index of the currently playing track
+        const player = new Audio(); // Create an audio object
+        player.src = tracks[currentTrackIndex].src; // Set the initial track source
+        player.preload = "auto"; // Preload the audio for smooth playback
+        const playPauseBtn = document.getElementById('playPauseBtn'); // Play/Pause button
+        const thumbnail = document.getElementById('thumbnail'); // Thumbnail image element
+        const trackTitle = document.getElementById('trackTitle'); // Track title element
+        const volumeIcon = document.getElementById('volumeIcon'); // Volume icon element
+
+        // Function to update track information when changing tracks
+        function updateTrackInfo() {
+            trackTitle.textContent = tracks[currentTrackIndex].title;
+            thumbnail.src = tracks[currentTrackIndex].thumbnail;
+            player.src = tracks[currentTrackIndex].src; // Update audio source
+            player.play(); // Start playing the new track
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; // Change button to pause icon
+        }
+
+        // Function to toggle between play and pause
+        function togglePlayPause() {
+            if (player.paused) {
+                player.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                player.pause();
+                playPauseBtn.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        // Function to go to the next track
+        function nextTrack() {
+            currentTrackIndex = (currentTrackIndex + 1) % tracks.length; // Loop back to the first track after the last one
+            updateTrackInfo();
+        }
+
+        // Function to go to the previous track
+        function previousTrack() {
+            currentTrackIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length; // Loop back to the last track from the first one
+            updateTrackInfo();
+        }
+
+        // Function to adjust volume
+        function setVolume(volume) {
+            player.volume = volume;
+        }
+
+        // Function to toggle mute
+        function toggleMute() {
+            if (player.muted) {
+                player.muted = false;
+                volumeIcon.classList.remove('fa-volume-mute');
+                volumeIcon.classList.add('fa-volume-up');
+            } else {
+                player.muted = true;
+                volumeIcon.classList.remove('fa-volume-up');
+                volumeIcon.classList.add('fa-volume-mute');
+            }
+        }
+
+        updateTrackInfo(); // Initialize the player with the first track
+    </script>
+</body>
+</html>
