@@ -2,6 +2,8 @@
 
 A simple, stylish, and responsive music player built using HTML, CSS, and JavaScript. It allows users to play and control music streams with a beautiful & simple UI and useful features.
 
+Preview - https://omiragk05.github.io/simple-web-music-player/
+
 ## Features
 
 - **Play/Pause Control:** 
